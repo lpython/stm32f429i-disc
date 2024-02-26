@@ -8,7 +8,6 @@ use stm32f429i_disc as board;
 use nb::block;
 
 
-use board::stm32f4xx_hal;
 use board::stm32f4xx_hal::{prelude::*, pac, serial::{config::Config, Serial}};
 
 
