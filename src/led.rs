@@ -1,8 +1,10 @@
 //! On-board user LEDs
 
-use hal::prelude::*;
 
-use hal::gpio::gpiog::{self, PG, PG13, PG14};
+use stm32f4xx_hal as hal;
+
+use hal::gpio::{  EPin, PinState};
+use hal::gpio::gpiog::{self,  PG13, PG14};
 use hal::gpio::{Output, PushPull};
 
 ///  Green LED
@@ -48,13 +50,13 @@ impl core::ops::DerefMut for Leds {
     }
 }
 
-impl core::ops::Index<usize> for Leds {
-    type Output = Led;
+// impl core::ops::Index<usize> for Leds {
+//     type Output = Led;
 
-    fn index(&self, i: usize) -> &Led {
-        &self.leds[i]
-    }
-}
+//     fn index(&self, i: usize) -> &Led {
+//         &self.leds[i]
+//     }
+// }
 
 impl core::ops::Index<Color> for Leds {
     type Output = Led;
@@ -64,11 +66,11 @@ impl core::ops::Index<Color> for Leds {
     }
 }
 
-impl core::ops::IndexMut<usize> for Leds {
-    fn index_mut(&mut self, i: usize) -> &mut Led {
-        &mut self.leds[i]
-    }
-}
+// impl core::ops::IndexMut<usize> for Leds {
+//     fn index_mut(&mut self, i: usize) -> &mut Led {
+//         &mut self.leds[i]
+//     }
+// }
 
 impl core::ops::IndexMut<Color> for Leds {
     fn index_mut(&mut self, c: Color) -> &mut Led {
@@ -78,7 +80,7 @@ impl core::ops::IndexMut<Color> for Leds {
 
 /// One of the on-board user LEDs
 pub struct Led {
-    pin: PG<Output<PushPull>>,
+    pin: EPin<Output<PushPull>>,
 }
 
 macro_rules! ctor {
@@ -87,7 +89,7 @@ macro_rules! ctor {
 			impl Into<Led> for $ldx {
 				fn into(self) -> Led {
 					Led {
-						pin: self.downgrade(),
+						pin: self.into() ,
 					}
 				}
 			}
@@ -100,20 +102,20 @@ ctor!(LD3, LD4);
 impl Led {
     /// Turns the LED off
     pub fn off(&mut self) {
-        self.pin.set_low().ok();
+        self.pin.set_low();
     }
 
     /// Turns the LED on
     pub fn on(&mut self) {
-        self.pin.set_high().ok();
+        self.pin.set_high();
     }
 
     /// Toggles the LED
     pub fn toggle(&mut self) {
-        if let Ok(true) = self.pin.is_low() {
-            self.pin.set_high().ok();
+        if let PinState::Low = self.pin.get_state() {
+            self.pin.set_high();
         } else {
-            self.pin.set_low().ok();
+            self.pin.set_low()
         }
     }
 }
